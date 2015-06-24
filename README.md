@@ -1,8 +1,8 @@
 # crawler-craigslist
-A crawler for searching housing info on Craigslist.org
-
-Target URL: chicago.craigslist.org/search/hhh
-Target area: title and posting info
-
-On Server: /opt/data/PRJ/Crawler_Craigslist
-Github: github.com/vmvc2v/crawler-craigslist
+A *crawler* for searching housing info on Craigslist.org
+* Date: June 24, 2015
+* System: Windows 7, Python 3.4.3
+* On Server: /opt/data/PRJ/Crawler_Craigslist
+* Github: github.com/vmvc2v/crawler-craigslist
+* Target URL: chicago.craigslist.org/search/hhh
+* Target area: title and posting info
