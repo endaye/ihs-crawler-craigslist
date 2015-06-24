@@ -1,5 +1,6 @@
 # crawler-craigslist
 A **crawler** for searching housing info on Craigslist.org
+-------------------------------
 
 1. Basic Info
 
