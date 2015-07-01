@@ -17,6 +17,6 @@ A **crawler** for searching housing info on Craigslist.org
 
 3. Step
     * Step 1: Download and install [Python 3](https://www.python.org/downloads/)
-    * Step 2: Download and install Python IDE [PyCharm /[Community Edition/]](https://www.jetbrains.com/pycharm/download/)
+    * Step 2: Download and install Python IDE [PyCharm [Community Edition]](https://www.jetbrains.com/pycharm/download/)
 
 
