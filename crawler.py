@@ -45,9 +45,11 @@ def get_single_house_data(house_url):
     plain_text = source_code.text
     soup = BeautifulSoup(plain_text)
 
+    # ID
     id = get_id(house_url)
     print('ID: \t', id)
 
+    # Title
     tag = soup.find('span', {'class': 'postingtitletext'})
     try:
         title = clean(tag.getText())
@@ -55,12 +57,15 @@ def get_single_house_data(house_url):
         title = 'NULL'
     print('Title:\t', title)
 
+    # Price
     tag = soup.find('span', {'class': 'price'})
     try:
         price = clean(tag.getText())
     except AttributeError:
         price = 0
     print("Price:\t", price)
+
+    # Bedroom Numbers, default is Zero.
     bedroom = '0br'
     area = '0ft2'
     tag = soup.find('span', {'class': 'housing'})
@@ -75,10 +80,20 @@ def get_single_house_data(house_url):
         pass
     print("Bedroom:\t", bedroom)
 
+    # Address on map
+    tag = soup.find('div', {'class': 'mapaddress'})
+    try:
+        addr = clean(tag.getText())
+    except AttributeError:
+        addr = 'NULL'
+    print('Address:\t', addr)
+
+    # Post Time
     tag = soup.find('time')
     time = tag['datetime'][:10]
     print('Post time:\t', time)
 
+    # Details
     tag = soup.find('section', {'id': 'postingbody'})
     try:
         desc = clean(tag.getText())
@@ -86,7 +101,7 @@ def get_single_house_data(house_url):
         desc = 'NULL'
     print('Description:\t', desc)
 
-    house = [id, price, bedroom, area, time, title, desc]
+    house = [id, price, bedroom, area, addr, time, title, desc]
 
     return house
 
@@ -124,12 +139,12 @@ def save_txt(file_name, housing):
 # https://wiki.python.org/moin/UsingPickle
 def main():
     file_name = "housing"
-    pages = 4
+    pages = 1
     try:
         housing = pickle.load(open(file_name + r'.p', "rb"))
     except FileNotFoundError:
         housing = {}
-    # housing = {}  # debug: create a new empty dict
+    housing = {}  # debug: create a new empty dict
     print(housing)
     add = house_spider(pages, housing)
     pickle.dump(housing, open(file_name + r'.p', "wb"))
