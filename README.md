@@ -7,6 +7,7 @@ A **crawler** for searching housing info on Craigslist.org
 	* Date: June 24, 2015
 	* System: Windows 7, Python 3.4.3
 	* IDE: PyCharm [Community Edition]
+	* Package: urllib2, BeautifulSoup, Requests
 	* On Server: /opt/data/PRJ/Crawler_Craigslist
 	* Github: github.com/vmvc2v/crawler-craigslist
 
@@ -18,5 +19,8 @@ A **crawler** for searching housing info on Craigslist.org
 3. Step
     * Step 1: Download and install [Python 3](https://www.python.org/downloads/)
     * Step 2: Download and install Python IDE [PyCharm [Community Edition]](https://www.jetbrains.com/pycharm/download/)
+        * Instruction: [Installing PyCharm](https://www.jetbrains.com/pycharm-educational/quickstart/installation.html) [[Video]](https://www.youtube.com/watch?v=-s4wKoLO520)
+    * Step 3: Import Package in PyCharm
+        * Instruction [[Video]](https://www.youtube.com/watch?t=156&v=XjNm9bazxn8)
 
 
