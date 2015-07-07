@@ -139,9 +139,9 @@ def save_txt(file_name, housing):
 # Load and save a dictionary into a file
 # https://wiki.python.org/moin/UsingPickle
 def main():
-
-    file_name = str(datetime.date.today()).replace("-", "")
     pages = 1
+    file_name = "CRAIG" + str(datetime.date.today()).replace("-", "") + "ALL"
+
     try:
         housing = pickle.load(open(file_name + r'.p', "rb"))
     except FileNotFoundError:
@@ -155,5 +155,4 @@ def main():
     print(str(add) + " items added into the list \n" +
           "total " + str(len(housing)) + " items in the list \n" +
           str(datetime.datetime.now()))
-    print(a)
 main()
