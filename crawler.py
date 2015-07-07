@@ -15,11 +15,12 @@ OUT_FILE_ALL = "CRAIG" + TODAY + r"_ALL" + r".txt"
 OUT_FILE_7D = "CRAIG" + TODAY + r"_7D" + r".txt"
 PAGE_MAX = 1  # Max 25
 
+
 def house_spider(max_pages, house_list, house_list_7d):
     page = 1
 
     # counter: [0] for house_list_all; [1] for house_list_7d
-    cnt = [0,0]
+    cnt = [0, 0]
 
     # scrape the searching pages one by one
     while page <= max_pages:
@@ -78,11 +79,12 @@ def house_spider(max_pages, house_list, house_list_7d):
 
             # DEBUG: uncomment 'break'; only show 5 items
             if cnt[0] > 5:
-                #break
+                # break
                 pass
         page += 1
 
     return cnt
+
 
 # filter items within a week
 # date1: post date
@@ -168,6 +170,7 @@ def get_single_house_data(house_url):
 
     return house
 
+
 def clean(str0):
     # step 1: remove non-ASCii chars
     str1 = remove_non_ascii(str0)
@@ -176,19 +179,23 @@ def clean(str0):
     str3 = re.sub('[ ]+', ' ', str2.strip())
     return str3
 
+
 # Stackoverflow.com "Replace non-ASCII characters with a single space"
 # http://stackoverflow.com/questions/20078816/replace-non-ascii-characters-with-a-single-space
 def remove_non_ascii(text):
     return ''.join([i if ord(i) < 128 else ' ' for i in text])
 
+
 # get id from link
 def get_id(href):
     return int(href.split('/')[-1].split('.')[0])
+
 
 # print a dictionary
 def print_dict(dict):
     for x in dict:
         log(x, ':', dict[x])
+
 
 # save the dictionary file as a txt file
 def save_txt(file_name, housing):
@@ -196,9 +203,10 @@ def save_txt(file_name, housing):
     for x in housing:
         # fw.write(str(x)+'\t')
         for y in housing[x]:
-            fw.write(str(y)+'\t')
+            fw.write(str(y) + '\t')
         fw.write('\n')
     fw.close()
+
 
 # create a log file
 def init_log():
@@ -206,6 +214,7 @@ def init_log():
                         format='%(asctime)s %(levelname)s:\t%(message)s',
                         level=logging.DEBUG)
     logging.debug("Log initialized.")
+
 
 # write log, or print(optional)
 def log(*args):
@@ -217,10 +226,10 @@ def log(*args):
     # DEBUG: pls uncomment this line (print logs in console)
     print(out)
 
+
 # Load and save a dictionary into a file
 # https://wiki.python.org/moin/UsingPickle
 def main():
-
     # initialized the log file
     init_log()
 
@@ -237,8 +246,8 @@ def main():
 
     # create a empty house dict for the last week
     house_list_7d = {}
-    last_week = [str(datetime.date.today()-datetime.timedelta(days=7)),
-                 str(datetime.date.today()-datetime.timedelta(days=1))]
+    last_week = [str(datetime.date.today() - datetime.timedelta(days=7)),
+                 str(datetime.date.today() - datetime.timedelta(days=1))]
     log("Created a new house list from " + last_week[0] + " to " + last_week[1] + '.\n')
 
     # start this crawler
@@ -259,5 +268,6 @@ def main():
     log("START time: \t", str(start))
     log("END time: \t\t", str(end))
     log("Time used: \t\t", str(end - start) + '\n\n\n\n\n')
+
 
 main()
