@@ -5,7 +5,14 @@ import requests
 import pickle
 import re
 import datetime
+import logging
 from bs4 import BeautifulSoup
+
+TODAY = str(datetime.date.today()).replace("-", "")
+LOG_FILENAME = r'crawler_' + TODAY + r'.log'
+OUT_FILE_ALL = "CRAIG" + TODAY + r"_ALL" + r".txt"
+OUT_FILE_7D = "CRAIG" + TODAY + r"_7D" + r".txt"
+DICT_FILE = r'crawler.dict'
 
 def house_spider(max_pages, housing):
     page = 1
@@ -15,7 +22,7 @@ def house_spider(max_pages, housing):
             url = 'http://chicago.craigslist.org/search/apa'
         else:
             url = 'http://chicago.craigslist.org/search/apa?s=' + str((page - 1) * 100)
-        print("Page: " + str(page) + ": " + url)
+        log("Page: " + str(page) + ": " + url)
         source_code = requests.get(url)
         plain_text = source_code.text  # convert source code into plain text
         soup = BeautifulSoup(plain_text)  # create a BeautifulSoup obj
@@ -24,18 +31,18 @@ def house_spider(max_pages, housing):
             href = "http://chicago.craigslist.org" + link.get('href')
             id = get_id(href)
             if id in housing:
-                print('ID #' + str(id) + " already exist!\n")
+                log('ID #' + str(id) + " already exist!\n")
                 continue
             title = clean(link.string)
-            print('#' + str(cnt), 'ID #' + str(id), title)
-            print('#' + str(cnt), href)
+            log('#' + str(cnt), 'ID #' + str(id), title)
+            log('#' + str(cnt), href)
             cnt += 1
             house = (get_single_house_data(href))
             housing[id] = house
-            print('\n')
+            log('\n')
 
-            if cnt > 1:  # debug
-                # break
+            if cnt > 1:  # if debug, uncomment 'break'
+                break
                 pass
         page += 1
 
@@ -48,7 +55,7 @@ def get_single_house_data(house_url):
 
     # ID
     id = get_id(house_url)
-    print('ID: \t', id)
+    log('ID: \t', id)
 
     # Title
     tag = soup.find('span', {'class': 'postingtitletext'})
@@ -56,7 +63,7 @@ def get_single_house_data(house_url):
         title = clean(tag.getText())
     except AttributeError:
         title = 'NULL'
-    print('Title:\t', title)
+    log('Title:\t', title)
 
     # Price
     tag = soup.find('span', {'class': 'price'})
@@ -64,7 +71,7 @@ def get_single_house_data(house_url):
         price = clean(tag.getText())
     except AttributeError:
         price = 0
-    print("Price:\t", price)
+    log("Price:\t", price)
 
     # Bedroom Numbers, default is Zero.
     bedroom = '0br'
@@ -79,7 +86,7 @@ def get_single_house_data(house_url):
                 area = x
     except AttributeError:
         pass
-    print("Bedroom:\t", bedroom)
+    log("Bedroom:\t", bedroom)
 
     # Address on map
     tag = soup.find('div', {'class': 'mapaddress'})
@@ -87,12 +94,12 @@ def get_single_house_data(house_url):
         addr = clean(tag.getText())
     except AttributeError:
         addr = 'NULL'
-    print('Address:\t', addr)
+    log('Address:\t', addr)
 
     # Post Time
     tag = soup.find('time')
     time = tag['datetime'][:10]
-    print('Post time:\t', time)
+    log('Post time:\t', time)
 
     # Details
     tag = soup.find('section', {'id': 'postingbody'})
@@ -100,7 +107,7 @@ def get_single_house_data(house_url):
         desc = clean(tag.getText())
     except AttributeError:
         desc = 'NULL'
-    print('Description:\t', desc)
+    log('Description:\t', desc)
 
     house = [id, price, bedroom, area, addr, time, title, desc]
 
@@ -124,11 +131,11 @@ def get_id(href):
 # print a dictionary
 def print_dict(dict):
     for x in dict:
-        print(x, ':', dict[x])
+        log(x, ':', dict[x])
 
 # save the dictionary file as a txt file
 def save_txt(file_name, housing):
-    fw = open(file_name + r'.txt', 'w')
+    fw = open(file_name, 'w')
     for x in housing:
         # fw.write(str(x)+'\t')
         for y in housing[x]:
@@ -136,23 +143,41 @@ def save_txt(file_name, housing):
         fw.write('\n')
     fw.close()
 
+# create a log file
+def init_log():
+    logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
+    logging.debug('This message should go to the log file')
+    log("Date: ", datetime.datetime.now())
+
+# write log
+def log(*args):
+    out = ''
+    for s in args:
+        out = out + ' ' + str(s)
+    logging.info(out)
+    print(out)  # debug: pls uncomment this line (print logs in console)
+
 # Load and save a dictionary into a file
 # https://wiki.python.org/moin/UsingPickle
 def main():
+
+    init_log()
+
     pages = 1
-    file_name = "CRAIG" + str(datetime.date.today()).replace("-", "") + "ALL"
 
     try:
-        housing = pickle.load(open(file_name + r'.p', "rb"))
+        housing = pickle.load(open(DICT_FILE, "rb"))
     except FileNotFoundError:
         housing = {}
+        logging.warning("Don't find dictionary file: " + DICT_FILE)
+        # log("Don't find dictionary file: " + DICT_FILE)
     housing = {}  # debug: create a new empty dict
-    print(housing)
+    log(housing)
     add = house_spider(pages, housing)
-    pickle.dump(housing, open(file_name + r'.p', "wb"))
-    save_txt(file_name, housing)
+    pickle.dump(housing, open(DICT_FILE, "wb"))
+    save_txt(OUT_FILE_ALL, housing)
     # print_dict(housing)
-    print(str(add) + " items added into the list \n" +
+    log(str(add) + " items added into the list \n" +
           "total " + str(len(housing)) + " items in the list \n" +
           str(datetime.datetime.now()))
 main()
