@@ -30,16 +30,16 @@ def house_spider(max_pages, housing):
             # get all link with class "hdrlnk"
             href = "http://chicago.craigslist.org" + link.get('href')
             id = get_id(href)
+            # if the id has been scraped, skip it.
             if id in housing:
                 log('ID #' + str(id) + " already exist!\n")
                 continue
             title = clean(link.string)
             log('#' + str(cnt), 'ID #' + str(id), title)
-            log('#' + str(cnt), href)
+            log('#' + str(cnt), href + "\n")
             cnt += 1
             house = (get_single_house_data(href))
             housing[id] = house
-            log('\n')
 
             if cnt > 1:  # if debug, uncomment 'break'
                 break
@@ -145,9 +145,10 @@ def save_txt(file_name, housing):
 
 # create a log file
 def init_log():
-    logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
-    logging.debug('This message should go to the log file')
-    log("Date: ", datetime.datetime.now())
+    logging.basicConfig(filename=LOG_FILENAME,
+                        format='%(asctime)s %(levelname)s:\t%(message)s',
+                        level=logging.DEBUG)
+    logging.debug("Date & Time: " + str(datetime.datetime.now()) + '\n')
 
 # write log
 def log(*args):
@@ -172,7 +173,7 @@ def main():
         logging.warning("Don't find dictionary file: " + DICT_FILE)
         # log("Don't find dictionary file: " + DICT_FILE)
     housing = {}  # debug: create a new empty dict
-    log(housing)
+
     add = house_spider(pages, housing)
     pickle.dump(housing, open(DICT_FILE, "wb"))
     save_txt(OUT_FILE_ALL, housing)
