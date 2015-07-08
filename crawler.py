@@ -61,7 +61,7 @@ def house_spider(max_pages, house_list, house_list_7d):
             # add the item info into house listfor all download. 'house_list' type is dictionary.
             house_list[id] = house
             log('ID #' + str(id) + " has been added in house list of all download today.")
-            log("Ready to save in " + OUT_FILE_ALL + " file.")
+            log("Ready to save in " + OUT_FILE_ALL + " file.\n")
 
             # parse the post date
             post_date = house[-3]
@@ -79,7 +79,7 @@ def house_spider(max_pages, house_list, house_list_7d):
 
             # DEBUG: uncomment 'break'; only show 5 items
             if cnt[0] > 5:
-                break
+                # break
                 pass
         page += 1
 
@@ -106,8 +106,12 @@ def date_filter(date1, date2=datetime.date.today(), delta=7):
 
 
 def get_single_house_data(house_url):
+
+    # html file
     source_code = requests.get(house_url)
+    # convert html to plain text
     plain_text = source_code.text
+    # create a B4S obj
     soup = BeautifulSoup(plain_text)
 
     # ID
@@ -122,13 +126,71 @@ def get_single_house_data(house_url):
         title = 'NULL'
     log('Title:\t', title)
 
+    # Price
+    tag = soup.find('span', {'class': 'price'})
+    try:
+        price_text = clean(tag.getText())
+        price = re.search("[0-9]+", price_text).group(0)
+    except AttributeError:
+        price = '0'
+    log("Price:\t" + price)
+
+    # Bedroom Numbers, default is Zero.
+    bedroom = '0'
+    area = '0'
+    tag = soup.find('span', {'class': 'housing'})
+    try:
+        info = clean(tag.getText()).split()
+        for x in info:
+            if x[-2:] == 'br':
+                bedroom = x[:-2]
+            if x[-3:] == 'ft2':
+                area = x[:-3]
+    except AttributeError:
+        pass
+    finally:
+        bed_tag = bedroom
+    log("Bed_tag:\t" + bedroom)
+    log("Area(ft2):\t" + area)
+
+    # Address on map
+    tag = soup.find('div', {'class': 'mapaddress'})
+    try:
+        addr_map = clean(tag.getText())
+    except AttributeError:
+        addr_map = 'NULL'
+    finally:
+        log('Address_map:\t', addr_map)
+
+    # Address from title
+    try:
+        addr_title_raw = re.search("\((.*)\)", title).group(1)
+        addr_title = re.sub("[^A-Za-z0-9 ]+", '', addr_title_raw)
+    except AttributeError:
+        addr_title = 'NULL'
+    finally:
+        log('Address_title:\t', addr_title)
+
+    # Post Time
+    tag = soup.find('time')
+    time = tag['datetime'][:10]
+    log('Post time:\t', time)
+
+    # Details
+    tag = soup.find('section', {'id': 'postingbody'})
+    try:
+        desc = clean(tag.getText())
+    except AttributeError:
+        desc = 'NULL'
+    log('Description:\t', desc)
+
     # Bedroom and Bathroom numbers in Title
     # set default number as zero
     bed_num = 0
     bath_num = 0
     # pick out title text w/o tags
     tag = soup.find('span', {'class': 'postingtitletext'})
-    [s.extract() for s in tag('span')]
+    [s.extract() for s in soup('span')]
     try:
         title_text = clean(tag.getText())
     except AttributeError:
@@ -161,7 +223,8 @@ def get_single_house_data(house_url):
         else:
             bed_num = 0
     finally:
-        log("Bed_title:", bed_num)
+        log("Bed_title:\t" + str(bed_num))
+        bed_title = bed_num
     # change text to digit (bathroom parts)
     try:
         bath_num_raw = re.split('b', bath_text.group())[0].strip()
@@ -174,53 +237,10 @@ def get_single_house_data(house_url):
         else:
             bath_num = 0
     finally:
-        log("Bath_title:", bath_num)
+        log("Bath_title:\t" + str(bath_num) + '\n')
+        bath_title = bath_num
 
-    # Price
-    tag = soup.find('span', {'class': 'price'})
-    try:
-        price = clean(tag.getText())
-    except AttributeError:
-        price = 0
-    log("Price:\t", price)
-
-    # Bedroom Numbers, default is Zero.
-    bedroom = '0br'
-    area = '0ft2'
-    tag = soup.find('span', {'class': 'housing'})
-    try:
-        info = clean(tag.getText()).split()
-        for x in info:
-            if x[-2:] == 'br':
-                bedroom = x
-            if x[-3:] == 'ft2':
-                area = x
-    except AttributeError:
-        pass
-    log("Bed_tag:\t", bedroom)
-
-    # Address on map
-    tag = soup.find('div', {'class': 'mapaddress'})
-    try:
-        addr = clean(tag.getText())
-    except AttributeError:
-        addr = 'NULL'
-    log('Address:\t', addr)
-
-    # Post Time
-    tag = soup.find('time')
-    time = tag['datetime'][:10]
-    log('Post time:\t', time)
-
-    # Details
-    tag = soup.find('section', {'id': 'postingbody'})
-    try:
-        desc = clean(tag.getText())
-    except AttributeError:
-        desc = 'NULL'
-    log('Description:\t', desc + '\n')
-
-    house = [id, price, bedroom, bed_num, bath_num, area, addr, time, title, desc]
+    house = [id, price, bed_tag, bed_title, bath_title, area, addr_map, addr_title, time, title, desc]
 
     return house
 
@@ -278,7 +298,7 @@ def log(*args):
     logging.info(out)
 
     # DEBUG: pls uncomment this line (print logs in console)
-    print(out)
+    # print(out)
 
 
 # Load and save a dictionary into a file
