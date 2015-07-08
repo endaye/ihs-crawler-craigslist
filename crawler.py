@@ -70,7 +70,7 @@ def house_spider(max_pages, house_list, house_list_7d):
             # http://stackoverflow.com/questions/466345/converting-string-into-datetime
             date_obj = datetime.datetime.strptime(post_date, '%Y-%m-%d').date()
 
-            #  # add the item info into house list of last week. 'house_list_7d' type is dictionary.
+            # add the item info into house list of last week. 'house_list_7d' type is dictionary.
             if date_filter(date1=date_obj):
                 house_list_7d[id] = house
                 cnt[1] += 1
@@ -79,7 +79,7 @@ def house_spider(max_pages, house_list, house_list_7d):
 
             # DEBUG: uncomment 'break'; only show 5 items
             if cnt[0] > 5:
-                # break
+                break
                 pass
         page += 1
 
@@ -122,6 +122,60 @@ def get_single_house_data(house_url):
         title = 'NULL'
     log('Title:\t', title)
 
+    # Bedroom and Bathroom numbers in Title
+    # set default number as zero
+    bed_num = 0
+    bath_num = 0
+    # pick out title text w/o tags
+    tag = soup.find('span', {'class': 'postingtitletext'})
+    [s.extract() for s in tag('span')]
+    try:
+        title_text = clean(tag.getText())
+    except AttributeError:
+        title_text = 'NULL'
+    # if match 'studio', set bdrm and bathrm numbers as 1
+    studio_t = re.search("studio", title_text.lower())
+    if studio_t is not None:
+        bed_num = 1
+        bath_num = 1
+    # convert English number into digit
+    num_dict = {'one':1, 'two':2, 'three':3, 'four':4, 'five':5, 'six':6, 'seven':7, 'eight':8, 'nine':9, 'ten':10}
+    # regular express of number parts
+    num_re = "([1-9]|one|two|three|four|five|six|seven|eight|nine|ten)( )?"
+    # regular express of bedroom parts
+    bed_re = "(bedrooms|bedroom|bedrm|bed|br|bd|bdrm)"
+    # regular express of bathroom parts
+    bath_re = "(bathrooms|bathroom|bathrm|baths|bath|ba|bthroom|bthrm)"
+    # the searching results of regex
+    bed_text = re.search(num_re + bed_re, title_text.lower())
+    bath_text = re.search(num_re + bath_re, title_text.lower())
+    # change text to digit (bedroom parts)
+    try:
+        bed_num_raw = re.split('b', bed_text.group())[0].strip()
+        bed_num = int(bed_num_raw)
+    except AttributeError:
+        bed_num = 0
+    except ValueError:
+        if bed_num_raw in num_dict:
+            bed_num = num_dict[bed_num_raw]
+        else:
+            bed_num = 0
+    finally:
+        log("Bed_title:", bed_num)
+    # change text to digit (bathroom parts)
+    try:
+        bath_num_raw = re.split('b', bath_text.group())[0].strip()
+        bath_num = int(bath_num_raw)
+    except AttributeError:
+        bath_num = 0
+    except ValueError:
+        if bath_num_raw in num_dict:
+            bath_num = num_dict[bath_num_raw]
+        else:
+            bath_num = 0
+    finally:
+        log("Bath_title:", bath_num)
+
     # Price
     tag = soup.find('span', {'class': 'price'})
     try:
@@ -143,7 +197,7 @@ def get_single_house_data(house_url):
                 area = x
     except AttributeError:
         pass
-    log("Bedroom:\t", bedroom)
+    log("Bed_tag:\t", bedroom)
 
     # Address on map
     tag = soup.find('div', {'class': 'mapaddress'})
@@ -166,7 +220,7 @@ def get_single_house_data(house_url):
         desc = 'NULL'
     log('Description:\t', desc + '\n')
 
-    house = [id, price, bedroom, area, addr, time, title, desc]
+    house = [id, price, bedroom, bed_num, bath_num, area, addr, time, title, desc]
 
     return house
 
@@ -175,7 +229,7 @@ def clean(str0):
     # step 1: remove non-ASCii chars
     str1 = remove_non_ascii(str0)
     # step 2&3: replace those syntax to whitespace and strip those whitespace
-    str2 = re.sub('[\[\]/{}\n\-\t\*!.,]+', ' ', str1)
+    str2 = re.sub('[\[\]/{}\n\-\t\*!<>#.,=]+', ' ', str1)
     str3 = re.sub('[ ]+', ' ', str2.strip())
     return str3
 
