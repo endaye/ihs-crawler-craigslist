@@ -30,7 +30,19 @@ A **crawler** for searching housing info on Craigslist.org
         * **CRAIGYYYYMMDD_ALL.txt** has all items downloaded each day. 'YYYYMMDD' is the date when the code is running.
         * **CRAIGYYYYMMDD_7D.txt** has items posted within a week (not include the present day because the code runs at 1 a.m.)
     * Output format
+        * Separator is '**tab**'
         * **Varialbe list** is [id, price, bed_tag, bed_title, bath_title, area, addr_map, addr_title, time, title, desc]
+        * id: 10-digit pin (primary key)
+        * price: posted price
+        * bed_tag: bedroom number crawled from item tag
+        * bed_title: bedroom number taken from title context
+        * bath_title: bathroom number taken from title context
+        * area: house area
+        * addr_map: house address crawled from map tag (most items are NULL)
+        * addr_title: house address taken from title context
+        * time: posted time
+        * title: title of items
+        * desc: detail information of items
     * Log
         * **crawler_YYYYMMDD.log** is daily log file.
 

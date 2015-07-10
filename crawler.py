@@ -13,7 +13,7 @@ TODAY = str(datetime.date.today()).replace("-", "")
 LOG_FILENAME = r'crawler_' + TODAY + r'.log'
 OUT_FILE_ALL = "CRAIG" + TODAY + r"_ALL" + r".txt"
 OUT_FILE_7D = "CRAIG" + TODAY + r"_7D" + r".txt"
-PAGE_MAX = 1  # Max 25
+PAGE_MAX = 25  # Max 25
 
 
 def house_spider(max_pages, house_list, house_list_7d):
@@ -298,7 +298,7 @@ def log(*args):
     logging.info(out)
 
     # DEBUG: pls uncomment this line (print logs in console)
-    print(out)
+    # print(out)
 
 
 # Load and save a dictionary into a file
