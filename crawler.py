@@ -172,8 +172,12 @@ def get_single_house_data(house_url):
 
     # Post Time
     tag = soup.find('time')
-    time = tag['datetime'][:10]
-    log('Post time:\t', time)
+    try:
+        time = tag['datetime'][:10]
+    except TypeError:
+        time = '0000-00-00'
+    finally:
+        log('Post time:\t', time)
 
     # Details
     tag = soup.find('section', {'id': 'postingbody'})
