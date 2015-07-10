@@ -198,7 +198,7 @@ def get_single_house_data(house_url):
     # if match 'studio', set bdrm and bathrm numbers as 1
     studio_t = re.search("studio", title_text.lower())
     if studio_t is not None:
-        bed_num = 1
+        bed_num = 0
         bath_num = 1
     # convert English number into digit
     num_dict = {'one':1, 'two':2, 'three':3, 'four':4, 'five':5, 'six':6, 'seven':7, 'eight':8, 'nine':9, 'ten':10}
