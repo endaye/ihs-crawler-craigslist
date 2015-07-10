@@ -9,7 +9,7 @@ A **crawler** for searching housing info on Craigslist.org
 	* IDE: PyCharm [Community Edition]
 	* Package: urllib2, BeautifulSoup, Requests
 	* On Server: /opt/data/PRJ/Crawler_Craigslist
-	* On Windows Server(140.*.*.194): F:\Work_Share\Craig_Daily_Download
+	* On Windows Server(140.x.x.194): F:\Work_Share\Craig_Daily_Download
 	* Github: [github.com/vmvc2v/crawler-craigslist](https://github.com/vmvc2v/crawler-craigslist)
 
 2. Goal
@@ -23,5 +23,6 @@ A **crawler** for searching housing info on Craigslist.org
         * Instruction: [Installing PyCharm](https://www.jetbrains.com/pycharm-educational/quickstart/installation.html) [[Video]](https://www.youtube.com/watch?v=-s4wKoLO520)
     * Step 3: Import Package in PyCharm
         * Instruction [[Video]](https://www.youtube.com/watch?t=156&v=XjNm9bazxn8)
+        * Menu "File" -> "Settings...", "Project: crawler-craigslist" -> "Project Interpreter", choose 3.4.3 or laster
 
 
