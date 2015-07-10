@@ -20,7 +20,7 @@ def house_spider(max_pages, house_list, house_list_7d):
     page = 1
 
     # counter: [0] for house_list_all; [1] for house_list_7d
-    cnt = [0, 0]
+    cnt = 0
 
     # scrape the searching pages one by one
     while page <= max_pages:
@@ -44,6 +44,9 @@ def house_spider(max_pages, house_list, house_list_7d):
             href = "http://chicago.craigslist.org" + link.get('href')
             id = get_id(href)
 
+            # get a url, counter +1
+            cnt += 1
+
             # if the id has been scraped, skip it.
             if id in house_list:
                 log('ID #' + str(id) + " already exist!\n")
@@ -51,9 +54,8 @@ def house_spider(max_pages, house_list, house_list_7d):
 
             # log title, accumulate the counter
             title = clean(link.string)
-            cnt[0] += 1
-            log('#' + str(cnt[0]), 'ID #' + str(id), title)
-            log('#' + str(cnt[0]), href)
+            log('#' + str(cnt), 'ID #' + str(id), title)
+            log('#' + str(cnt), href)
 
             # scrape data on the item page. 'house' is a info list.
             house = (get_single_house_data(href))
@@ -73,12 +75,11 @@ def house_spider(max_pages, house_list, house_list_7d):
             # add the item info into house list of last week. 'house_list_7d' type is dictionary.
             if date_filter(date1=date_obj):
                 house_list_7d[id] = house
-                cnt[1] += 1
                 log('ID #' + str(id) + " has been added in house list of last week items.")
                 log("Ready to save in " + OUT_FILE_7D + " file.\n")
 
             # DEBUG: uncomment 'break'; only show 5 items
-            if cnt[0] > 5:
+            if cnt > 5:
                 # break
                 pass
         page += 1
@@ -302,7 +303,7 @@ def log(*args):
     logging.info(out)
 
     # DEBUG: pls uncomment this line (print logs in console)
-    # print(out)
+    print(out)
 
 
 # Load and save a dictionary into a file
@@ -336,7 +337,7 @@ def main():
     save_txt(r".\\daily_download\\7_days\\" + OUT_FILE_7D, house_list_7d)
 
     # log summary of data
-    log("DOWNLOAD: \t" + str(add[0]) + " items have been scraped. \n")
+    log("DOWNLOAD: \t" + str(add) + " items have been scraped. \n")
     log("for ALL: \t" + str(len(house_list)) + " items have been copied and saved in " + OUT_FILE_ALL + " file.")
     log("for 7D: \t" + str(len(house_list_7d)) + " items for last week " +
         "(from " + last_week[0] + ' to ' + last_week[1] + ") have been saved in " + OUT_FILE_ALL + " file. \n")
