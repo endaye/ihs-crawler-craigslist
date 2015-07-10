@@ -106,7 +106,6 @@ def date_filter(date1, date2=datetime.date.today(), delta=7):
 
 
 def get_single_house_data(house_url):
-
     # html file
     source_code = requests.get(house_url)
     # convert html to plain text
@@ -201,7 +200,8 @@ def get_single_house_data(house_url):
         bed_num = 0
         bath_num = 1
     # convert English number into digit
-    num_dict = {'one':1, 'two':2, 'three':3, 'four':4, 'five':5, 'six':6, 'seven':7, 'eight':8, 'nine':9, 'ten':10}
+    num_dict = {'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6, 'seven': 7, 'eight': 8, 'nine': 9,
+                'ten': 10}
     # regular express of number parts
     num_re = "([1-9]|one|two|three|four|five|six|seven|eight|nine|ten)( )?"
     # regular express of bedroom parts
@@ -284,7 +284,7 @@ def save_txt(file_name, housing):
 
 # create a log file
 def init_log():
-    logging.basicConfig(filename=LOG_FILENAME,
+    logging.basicConfig(filename=r".\\log\\" + LOG_FILENAME,
                         format='%(asctime)s %(levelname)s:\t%(message)s',
                         level=logging.DEBUG)
     logging.debug("Log initialized.")
@@ -298,7 +298,7 @@ def log(*args):
     logging.info(out)
 
     # DEBUG: pls uncomment this line (print logs in console)
-    # print(out)
+    print(out)
 
 
 # Load and save a dictionary into a file
@@ -328,8 +328,8 @@ def main():
     add = house_spider(pages, house_list, house_list_7d)
 
     # output file
-    save_txt(OUT_FILE_ALL, house_list)
-    save_txt(OUT_FILE_7D, house_list_7d)
+    save_txt(r".\\daily_download\\all_download\\" + OUT_FILE_ALL, house_list)
+    save_txt(r".\\daily_download\\7_days\\" + OUT_FILE_7D, house_list_7d)
 
     # log summary of data
     log("DOWNLOAD: \t" + str(add[0]) + " items have been scraped. \n")
