@@ -66,23 +66,23 @@ A **crawler** for searching housing info on Craigslist.org
         * Click menu "**Run**" -> "**Run...**", or right click ":arrow_forward:**Run 'crawler'**" in crawler.py file editor
 
 5. Extra: Make it auto run at 1 a.m. everyday on Windows server(Windows XP)
-        * Log in Windows server (by Windows Desktop)
-        * Set up everything as Step 1 to 5
-        * Add a batch file named as "crawler_daily.bat" or something
-        * ![Batch file](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/06.PNG?raw=true)
-        * Add code into batch file as below
-        ```
-        C:\Python34\python.exe "F:\Work_Share\Craig_Daily_Download\crawler.py" >> crawler_latest_log.txt
-        ```
-        * Create a new Windows scheduled task
-        * ![scheduled tast](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/07.PNG?raw=true)
-        * ![new tast](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/08.PNG?raw=true)
-        * Click "**Next**"
-        * ![welcome page](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/09.PNG?raw=true)
-        * Click "**Browse...**", choose "**crawler_daily.bat**", and click "**Next**"
-        * ![choose batch](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/10.PNG?raw=true)
-        * Type a **name** for the task and choose "**Daily**" as performance
-        * ![task name](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/11.PNG?raw=true)
-        * Set performing this task at 1:00 a.m. every day
-        * ![time](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/12.PNG?raw=true)
-        * Click "**Next**"s to "**Finish**", all set.
+    * Log in Windows server (by Windows Desktop)
+    * Set up everything as Step 1 to 5
+    * Add a batch file named as "crawler_daily.bat" or something
+    * ![Batch file](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/06.PNG?raw=true)
+    * Add code into batch file as below
+    ```
+    C:\Python34\python.exe "F:\Work_Share\Craig_Daily_Download\crawler.py" >> crawler_latest_log.txt
+    ```
+    * Create a new Windows scheduled task
+    * ![scheduled tast](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/07.PNG?raw=true)
+    * ![new tast](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/08.PNG?raw=true)
+    * Click "**Next**"
+    * ![welcome page](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/09.PNG?raw=true)
+    * Click "**Browse...**", choose "**crawler_daily.bat**", and click "**Next**"
+    * ![choose batch](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/10.PNG?raw=true)
+    * Type a **name** for the task and choose "**Daily**" as performance
+    * ![task name](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/11.PNG?raw=true)
+    * Set performing this task at 1:00 a.m. every day
+    * ![time](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/12.PNG?raw=true)
+    * Click "**Next**"s to "**Finish**", all set.
