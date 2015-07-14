@@ -336,8 +336,17 @@ def main():
     save_txt(r".\\daily_download\\all_download\\" + OUT_FILE_ALL, house_list)
     save_txt(r".\\daily_download\\7_days\\" + OUT_FILE_7D, house_list_7d)
 
+    # duplicate
+    dup = add-len(house_list)
+
     # log summary of data
-    log("DOWNLOAD: \t" + str(add) + " items have been scraped. \n")
+    log("DOWNLOAD: \t" + str(add) + " items have been scraped.")
+    if dup is 0:
+        log("DOWNLOAD: \t No duplicate item. \n")
+    elif dup is 1:
+        log("DOWNLOAD: \t" + str(dup) + " is duplicate. \n")
+    else:
+        log("DOWNLOAD: \t" + str(dup) + " items are duplicates. \n")
     log("for ALL: \t" + str(len(house_list)) + " items have been copied and saved in " + OUT_FILE_ALL + " file.")
     log("for 7D: \t" + str(len(house_list_7d)) + " items for last week " +
         "(from " + last_week[0] + ' to ' + last_week[1] + ") have been saved in " + OUT_FILE_ALL + " file. \n")
