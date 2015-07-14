@@ -69,13 +69,13 @@ A **crawler** for searching housing info on Craigslist.org
     * Log in Windows server (by Windows Desktop)
     * Set up everything as Step 1 to 5
     * Add a batch file named as "crawler_daily.bat" or something
-    * ![Batch file](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/06.png?raw=true)
+    * ![Batch file](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/06.PNG?raw=true)
     * Add this code into batch file as below
     ```
     C:\Python34\python.exe "F:\Work_Share\Craig_Daily_Download\crawler.py" >> crawler_latest_log.txt
     ```
     * Create a new Windows scheduled task
-    * ![scheduled tast](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/07.PNG?raw=true)
+    * ![scheduled tast](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/07.png?raw=true)
     * ![new tast](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/08.PNG?raw=true)
     * Click "**Next**"
     * ![welcome page](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/09.PNG?raw=true)
