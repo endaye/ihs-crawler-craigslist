@@ -46,7 +46,7 @@ A **crawler** for searching housing info on Craigslist.org
     * Log
         * **crawler_YYYYMMDD.log** is daily log file.
 
-4. Step
+4. Setup
     * Step 1: Download and install [**Python 3**](https://www.python.org/downloads/)
         * ![Download and install Python 3](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/01.PNG?raw=true)
     * Step 2: Download and install Python IDE [**PyCharm** [Community Edition]](https://www.jetbrains.com/pycharm/download/)
@@ -55,14 +55,34 @@ A **crawler** for searching housing info on Craigslist.org
     * Step 3: Download crawler code from [**github.com/vmvc2v/crawler-craigslist**](https://github.com/vmvc2v/crawler-craigslist)
         * Clone the code or just download in zip file
         * ![Download code](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/03.PNG?raw=true)
-    * Step 4: Import Packages in PyCharm
+    * Step 4: Import packages in PyCharm
         * Instruction [[Video]](https://www.youtube.com/watch?t=156&v=XjNm9bazxn8)
         * Click menu "**File**" -> "**Settings...**", "**Project: crawler-craigslist**" -> "**Project Interpreter**", choose 3.4.3 or later
         * ![Choose interpreter](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/04.PNG?raw=true)
         * Click ":heavy_plus_sign:" button to add "**beautifulscraper**" and "**requests**" these two packages, and install them.
         * ![install two packages](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/05.PNG?raw=true)
         * After all, click "**OK**" to finish setting parts.
-    * Step 5: Run code
+    * Step 5: Run the code
         * Click menu "**Run**" -> "**Run...**", or right click ":arrow_forward:**Run 'crawler'**" in crawler.py file editor
 
-
+5. Extra: Make it auto run at 1 a.m. everyday on Windows server(Windows XP)
+        * Log in Windows server (by Windows Desktop)
+        * Set up everything as Step 1 to 5
+        * Add a batch file named as "crawler_daily.bat" or something
+        * ![Batch file](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/06.PNG?raw=true)
+        * Add code into batch file as below
+        ```
+        C:\Python34\python.exe "F:\Work_Share\Craig_Daily_Download\crawler.py" >> crawler_latest_log.txt
+        ```
+        * Create a new Windows scheduled task
+        * ![scheduled tast](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/07.PNG?raw=true)
+        * ![new tast](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/08.PNG?raw=true)
+        * Click "**Next**"
+        * ![welcome page](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/09.PNG?raw=true)
+        * Click "**Browse...**", choose "**crawler_daily.bat**", and click "**Next**"
+        * ![choose batch](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/10.PNG?raw=true)
+        * Type a **name** for the task and choose "**Daily**" as performance
+        * ![task name](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/11.PNG?raw=true)
+        * Set performing this task at 1:00 a.m. every day
+        * ![time](https://github.com/vmvc2v/crawler-craigslist/blob/master/doc/img/12.PNG?raw=true)
+        * Click "**Next**"s to "**Finish**", all set.
