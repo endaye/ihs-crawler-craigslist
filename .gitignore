@@ -4,3 +4,4 @@ sftp-config.json
 .idea/misc.xml
 
 .idea/dictionaries/yzhang.xml
+*.sas7bdat
