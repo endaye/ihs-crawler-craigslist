@@ -13,14 +13,30 @@ Github:		github.com/vmvc2v/crawler-craigslist
 option compress = yes;
 
 libname f	"./";
-libname all_in	"../daily_download/all_download/";
-libname 7d_in	"../daily_download/7_days/";
-libname all_out	"../dataset/all/";
-libname 7d_in	"../dataset/7d/";
+libname in_all	"../daily_download/all_download/";
+libname in_7d	"../daily_download/7_days/";
+libname out_all	"../dataset/all/";
+libname out_7d	"../dataset/7d/";
+
+%LET in_all	= 	../daily_download/all_download/;
+%LET in_7d	= 	../daily_download/7_days/;
+%LET out_all = 	../dataset/all/;
+%LET out_7d	= 	../dataset/7d/;
 
 
 /*****************************/
 /* Step 0:	Upload text files from Windows server to SAS server*/
 /*****************************/
-data f.a;
-infile "../daily_download/all_download/"
+
+data out_all.CRAIG20150710_ALL;
+infile "../daily_download/all_download/CRAIG20150710_ALL.txt" dlm='09'x dsd truncover;
+input id price bed_tag bed_title bath_title area addr_map $1-60 addr_title $ time $ title $ desc $;
+run;
+
+data out_7d.CRAIG20150710_ALL;
+infile "../daily_download/7_days/CRAIG20150712_ALL.txt" dlm='09'x dsd truncover;
+input id price bed_tag bed_title bath_title area addr_map $1-60 addr_title $ time $ title $ desc $;
+run;
+
+
+filename ls_d_a pip ""

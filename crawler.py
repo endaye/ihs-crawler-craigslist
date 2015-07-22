@@ -13,7 +13,7 @@ TODAY = str(datetime.date.today()).replace("-", "")
 LOG_FILENAME = r'crawler_' + TODAY + r'.log'
 OUT_FILE_ALL = "CRAIG" + TODAY + r"_ALL" + r".txt"
 OUT_FILE_7D = "CRAIG" + TODAY + r"_7D" + r".txt"
-PAGE_MAX = 25  # Max 25
+PAGE_MAX = 1  # Max 25
 
 
 def house_spider(max_pages, house_list, house_list_7d):
@@ -279,6 +279,8 @@ def print_dict(dict):
 # save the dictionary file as a txt file
 def save_txt(file_name, housing):
     fw = open(file_name, 'w')
+    # add variable titles at the first line
+    fw.write("id\tprice\tbed_tag\tbed_title\tbath_title\tarea\taddr_map\taddr\ttitle\ttime\tdesc\t\n")
     for x in housing:
         # fw.write(str(x)+'\t')
         for y in housing[x]:

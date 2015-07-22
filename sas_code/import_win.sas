@@ -17,26 +17,90 @@ To run this code:
 
 option compress = yes;
 
-libname f	"C:\Users\yzhang96\Google Drive\DePaul Work\crawler-craigslist\dataset\7d\";
-libname ds_7d	"C:\Users\yzhang96\Google Drive\DePaul Work\crawler-craigslist\dataset\7d\";
+%LET proj = C:\Users\yzhang96\Google Drive\DePaul Work\crawler-craigslist\;
 
-%LET raw_all = C:\Users\yzhang96\Google Drive\DePaul Work\crawler-craigslist\daily_download\all_download\
+libname f	"&proj.dataset\7d\";
+libname ds_7d	"&proj.dataset\7d\";
+
+%LET raw_all = &proj.daily_download\all_download\;
+%LET update_num = 0;
+
+%macro main();
+
+*list of 7-day txt files;
+filename ls_txt_7 pipe 'dir "C:\Users\yzhang96\Google Drive\DePaul Work\crawler-craigslist\daily_download\7_days\*.txt"';
+data ls_txt_7;
+infile ls_txt_7 truncover;
+input raw $120.;
+is_file = findw(raw, "txt"); 
+if is_file > 0;
+fname = upcase(substr(raw, is_file-17, 16));
+if substr(fname,1,5) = "CRAIG";
+drop raw is_file;
+run;
+
+*list of 7-day dataset ; 
+filename ls_ds_7 pipe 'dir "C:\Users\yzhang96\Google Drive\DePaul Work\crawler-craigslist\dataset\7d\*.sas7bdat"';
+data ls_ds_7;
+infile ls_ds_7 truncover;
+input raw $120.;
+is_file = findw(raw, "sas7bdat"); 
+if is_file > 0;
+fname = upcase(substr(raw, is_file-17, 16));
+if substr(fname,1,5) = "CRAIG";
+drop raw is_file;
+run;
+
+data up_7;
+merge ls_txt_7(in=a) ls_ds_7(in=b);
+by fname;
+ab=cats(a,b);
+if ab = '10';
+drop ab;
+run;
+
+data _NULL_;
+set up_7;
+call symputx('update_num', _N_);
+call symput(cats('update_',_N_), fname);
+%put ~~~~~~~~~~~~ &update_num FILE(S) NEED TO INPUT ~~~~~~~~~~~~;
+run;
+
+
+%macro import_single_7d(fname);
 
 proc import
-datafile = "C:\Users\yzhang96\Google Drive\DePaul Work\crawler-craigslist\daily_download\7_days\CRAIG20150710_7D.txt"
-out = a
+%put ~~~~~~~~~~~~ INPUT &fname ~~~~~~~~~~~~;
+datafile = "&proj.daily_download\7_days\&fname..txt"
+out = tmp
 DBMS = dlm
-replace
+replace;
 delimiter='09'x;
 run;
 
-data ds_7d.CRAIG20150710_7D;
-set a;
+data ds_7d.&fname.;
+set tmp;
 drop VAR12;
 run;
 
-filename ls_txt ("C:\Users\yzhang96\Google Drive\DePaul Work\crawler-craigslist\dataset\7d\*.*");
-data new;
-infile ls_txt;
-input;
-run;
+%mend import_single_7d;
+
+%macro import_all_7d();
+%if &update_num = 0 %then %do;
+	%put "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~";
+	%put "                WARNING: TXT Importing Skipped, No Update Available                 ";
+	%put "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~";
+%end;
+%else %do;
+	%do p = 1 %to &update_num.;
+		%import_single_7d(&&update_&p..);
+	%end;
+%end;
+%mend import_all_7d;
+
+
+%import_all_7d();
+
+%mend main;
+
+%main();
