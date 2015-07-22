@@ -7,6 +7,7 @@ import re
 import datetime
 import logging
 from bs4 import BeautifulSoup
+import os.path
 
 # static variable
 TODAY = str(datetime.date.today()).replace("-", "")
@@ -294,6 +295,7 @@ def init_log():
     logging.basicConfig(filename=r".\\log\\" + LOG_FILENAME,
                         format='%(asctime)s %(levelname)s:\t%(message)s',
                         level=logging.DEBUG)
+    logging.debug("==============================================================")
     logging.debug("Log initialized.")
 
 
@@ -318,40 +320,48 @@ def main():
     start = datetime.datetime.now()
     log("START: \t" + str(start) + '\n')
 
-    # 100 items per page, max search page number is 25
-    pages = PAGE_MAX
-
-    # create a empty house dict for all download
-    house_list = {}
-    log("Created a new house list for all download today. Target pages: " + str(pages) + '.\n')
-
-    # create a empty house dict for the last week
-    house_list_7d = {}
-    last_week = [str(datetime.date.today() - datetime.timedelta(days=7)),
-                 str(datetime.date.today() - datetime.timedelta(days=1))]
-    log("Created a new house list from " + last_week[0] + " to " + last_week[1] + '.\n')
-
-    # start this crawler
-    add = house_spider(pages, house_list, house_list_7d)
-
-    # output file
-    save_txt(r".\\daily_download\\all_download\\" + OUT_FILE_ALL, house_list)
-    save_txt(r".\\daily_download\\7_days\\" + OUT_FILE_7D, house_list_7d)
-
-    # duplicate
-    dup = add-len(house_list)
-
-    # log summary of data
-    log("DOWNLOAD: \t" + str(add) + " items have been scraped.")
-    if dup is 0:
-        log("DOWNLOAD: \t No duplicate item. \n")
-    elif dup is 1:
-        log("DOWNLOAD: \t" + str(dup) + " is duplicate. \n")
+    # check the file exist
+    exist = os.path.isfile(r".\\daily_download\\all_download\\" + OUT_FILE_ALL)
+    if exist:
+        # skip download process
+        log(OUT_FILE_ALL + " file has existed. Do not need update again.")
     else:
-        log("DOWNLOAD: \t" + str(dup) + " items are duplicates. \n")
-    log("for ALL: \t" + str(len(house_list)) + " items have been copied and saved in " + OUT_FILE_ALL + " file.")
-    log("for 7D: \t" + str(len(house_list_7d)) + " items for last week " +
-        "(from " + last_week[0] + ' to ' + last_week[1] + ") have been saved in " + OUT_FILE_ALL + " file. \n")
+        log(OUT_FILE_ALL + " file does not exist. Create a new one to update.")
+
+        # 100 items per page, max search page number is 25
+        pages = PAGE_MAX
+
+        # create a empty house dict for all download
+        house_list = {}
+        log("Created a new house list for all download today. Target pages: " + str(pages) + '.\n')
+
+        # create a empty house dict for the last week
+        house_list_7d = {}
+        last_week = [str(datetime.date.today() - datetime.timedelta(days=7)),
+                     str(datetime.date.today() - datetime.timedelta(days=1))]
+        log("Created a new house list from " + last_week[0] + " to " + last_week[1] + '.\n')
+
+        # start this crawler
+        add = house_spider(pages, house_list, house_list_7d)
+
+        # output file
+        save_txt(r".\\daily_download\\all_download\\" + OUT_FILE_ALL, house_list)
+        save_txt(r".\\daily_download\\7_days\\" + OUT_FILE_7D, house_list_7d)
+
+        # duplicate
+        dup = add-len(house_list)
+
+        # log summary of data
+        log("DOWNLOAD: \t" + str(add) + " items have been scraped.")
+        if dup is 0:
+            log("DOWNLOAD: \t No duplicate item. \n")
+        elif dup is 1:
+            log("DOWNLOAD: \t" + str(dup) + " is duplicate. \n")
+        else:
+            log("DOWNLOAD: \t" + str(dup) + " items are duplicates. \n")
+        log("for ALL: \t" + str(len(house_list)) + " items have been copied and saved in " + OUT_FILE_ALL + " file.")
+        log("for 7D: \t" + str(len(house_list_7d)) + " items for last week " +
+            "(from " + last_week[0] + ' to ' + last_week[1] + ") have been saved in " + OUT_FILE_ALL + " file. \n")
 
     # log summary of time
     end = datetime.datetime.now()
