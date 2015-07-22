@@ -10,3 +10,5 @@ CRAIG20150707ALL.txt
 *.p
 *.log
 *.dict
+*.txt
+*.sas7bdat
