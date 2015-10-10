@@ -5,33 +5,39 @@ import requests
 import pickle
 import re
 import datetime
-import logging
 from bs4 import BeautifulSoup
 import os.path
 
 # static variable
 TODAY = str(datetime.date.today()).replace("-", "")
-LOG_FILENAME = r'crawler_' + TODAY + r'.log'
-OUT_FILE_ALL = "CRAIG" + TODAY + r"_ALL" + r".txt"
-OUT_FILE_7D = "CRAIG" + TODAY + r"_7D" + r".txt"
-PAGE_MAX = 1  # Max 25
+PATH = r".\\daily_download\\"
+OUT_FILE_ALL = PATH + r"all_download\\" + "CRAIG" + TODAY + r"_ALL" + r".txt"
+OUT_FILE_7D = PATH + r"7_days\\" + "CRAIG" + TODAY + r"_7D" + r".txt"
+
+found_cnt = 0
+skip_cnt = 0
+download_cnt = 0
+save_cnt_all = 0
+save_cnt_7d = 0
+
+PAGE_MAX = 25  # Max 25
+DEBUG_MODE = False
 
 
-def house_spider(max_pages, house_list, house_list_7d):
+def crawler(max_pages):
+    global found_cnt
+    global skip_cnt
     page = 1
-
-    # counter: [0] for house_list_all; [1] for house_list_7d
-    cnt = 0
-
+    house_list = []
     # scrape the searching pages one by one
     while page <= max_pages:
-
+        cnt = 0
         # 100 items per page, max 25 pages
         if page is 1:
             url = 'http://chicago.craigslist.org/search/apa'
         else:
             url = 'http://chicago.craigslist.org/search/apa?s=' + str((page - 1) * 100)
-        log("Page: " + str(page) + ": " + url)
+        print("[DOWNLOAD]Page: " + str(page) + ": " + url)
 
         # prepare for parse
         source_code = requests.get(url)  # get the html file
@@ -47,11 +53,15 @@ def house_spider(max_pages, house_list, house_list_7d):
 
             # get a url, counter +1
             cnt += 1
+            found_cnt += 1
 
             # if the id has been scraped, skip it.
             if id in house_list:
-                log('ID #' + str(id) + " already exist!\n")
+                print("[DOWNLOAD]" + 'ID #' + str(id) + " already exist, skip to next.\n")
+                skip_cnt += 1
                 continue
+
+            print("[DOWNLOAD]" + 'ID #' + str(id) + " is downloading...")
 
             # log title, accumulate the counter
             title = clean(link.string)
@@ -59,33 +69,18 @@ def house_spider(max_pages, house_list, house_list_7d):
             log('#' + str(cnt), href)
 
             # scrape data on the item page. 'house' is a info list.
-            house = (get_single_house_data(href))
+            get_single_house_data(href)
 
-            # add the item info into house listfor all download. 'house_list' type is dictionary.
-            house_list[id] = house
-            log('ID #' + str(id) + " has been added in house list of all download today.")
-            log("Ready to save in " + OUT_FILE_ALL + " file.\n")
+            # add the item info into house list for all download. 'house_list' type is dictionary.
+            house_list.append(id)
 
-            # parse the post date
-            post_date = house[-3]
-
-            # convert string to date obj
-            # http://stackoverflow.com/questions/466345/converting-string-into-datetime
-            date_obj = datetime.datetime.strptime(post_date, '%Y-%m-%d').date()
-
-            # add the item info into house list of last week. 'house_list_7d' type is dictionary.
-            if date_filter(date1=date_obj):
-                house_list_7d[id] = house
-                log('ID #' + str(id) + " has been added in house list of last week items.")
-                log("Ready to save in " + OUT_FILE_7D + " file.\n")
+            print("[DOWNLOAD]" + 'ID #' + str(id) + " download finished.\n")
 
             # DEBUG: uncomment 'break'; only show 5 items
             if cnt > 5:
                 # break
                 pass
         page += 1
-
-    return cnt
 
 
 # filter items within a week
@@ -243,12 +238,41 @@ def get_single_house_data(house_url):
         else:
             bath_num = 0
     finally:
-        log("Bath_title:\t" + str(bath_num) + '\n')
+        log("Bath_title:\t" + str(bath_num))
         bath_title = bath_num
 
     house = [id, price, bed_tag, bed_title, bath_title, area, addr_map, addr_title, time, title, desc]
+    global download_cnt
+    download_cnt += 1
+    save_in_file(house, OUT_FILE_ALL)
 
-    return house
+    # parse the post date
+    post_date = house[-3]
+
+    # convert string to date obj
+    # http://stackoverflow.com/questions/466345/converting-string-into-datetime
+    date_obj = datetime.datetime.strptime(post_date, '%Y-%m-%d').date()
+
+    # add the item info into house list of last week. save it in 'house_list_7d'.
+    if date_filter(date1=date_obj):
+        save_in_file(house, OUT_FILE_7D)
+
+    # return house
+
+
+def save_in_file(house, filename):
+    fw = open(filename, 'a')
+    for item in house:
+        fw.write(str(item) + '\t')
+    fw.write('\n')
+    fw.close()
+    print("[SAVE]ID #" + str(house[0]) + " is saved in " + filename)
+    if filename == OUT_FILE_ALL:
+        global save_cnt_all
+        save_cnt_all += 1
+    if filename == OUT_FILE_7D:
+        global save_cnt_7d
+        save_cnt_7d += 1
 
 
 def clean(str0):
@@ -271,103 +295,94 @@ def get_id(href):
     return int(href.split('/')[-1].split('.')[0])
 
 
-# print a dictionary
-def print_dict(dict):
-    for x in dict:
-        log(x, ':', dict[x])
-
-
-# save the dictionary file as a txt file
-def save_txt(file_name, housing):
-    fw = open(file_name, 'w')
-    # add variable titles at the first line
-    fw.write("id\tprice\tbed_tag\tbed_title\tbath_title\tarea\taddr_map\taddr\ttitle\ttime\tdesc\t\n")
-    for x in housing:
-        # fw.write(str(x)+'\t')
-        for y in housing[x]:
-            fw.write(str(y) + '\t')
-        fw.write('\n')
-    fw.close()
-
-
-# create a log file
-def init_log():
-    logging.basicConfig(filename=r".\\log\\" + LOG_FILENAME,
-                        format='%(asctime)s %(levelname)s:\t%(message)s',
-                        level=logging.DEBUG)
-    logging.debug("==============================================================")
-    logging.debug("Log initialized.")
-
-
 # write log, or print(optional)
 def log(*args):
     out = ''
     for s in args:
-        out = out + str(s) + ' '
-    logging.info(out)
-
+        out = out + '[DEBUG]Detail: ' + str(s) + ' '
     # DEBUG: pls uncomment this line (print logs in console)
-    print(out)
+    if DEBUG_MODE:
+        print(out)
 
 
 # Load and save a dictionary into a file
 # https://wiki.python.org/moin/UsingPickle
 def main():
-    # initialized the log file
-    init_log()
-
     # start running
     start = datetime.datetime.now()
-    log("START: \t" + str(start) + '\n')
+    print("[TIME]START time: \t" + str(start) + '\n')
 
     # check the file exist
-    exist = os.path.isfile(r".\\daily_download\\all_download\\" + OUT_FILE_ALL)
-    if exist:
+    exist_all = os.path.isfile(OUT_FILE_ALL)
+    exist_7d = os.path.isfile(OUT_FILE_7D)
+    if exist_all:
+        size_all = os.path.getsize(OUT_FILE_ALL)
+    if exist_all and size_all > 2 * 1024 * 1024:
+        # 2MB
         # skip download process
-        log(OUT_FILE_ALL + " file has existed. Do not need update again.")
+        print("[FILE]" + OUT_FILE_ALL + "\nThe file has existed (size " + size_all + "). Do not need update again.")
     else:
-        log(OUT_FILE_ALL + " file does not exist. Create a new one to update.")
+        print("[FILE]" + OUT_FILE_ALL)
+        print("[FILE]The file does not exist or its size is less 2M available.")
+        print("[FILE]Create a new one to update.\n")
 
         # 100 items per page, max search page number is 25
         pages = PAGE_MAX
-
-        # create a empty house dict for all download
-        house_list = {}
-        log("Created a new house list for all download today. Target pages: " + str(pages) + '.\n')
+        print("[PAGE]Target pages to download: " + str(pages) + '.\n')
 
         # create a empty house dict for the last week
-        house_list_7d = {}
         last_week = [str(datetime.date.today() - datetime.timedelta(days=7)),
                      str(datetime.date.today() - datetime.timedelta(days=1))]
-        log("Created a new house list from " + last_week[0] + " to " + last_week[1] + '.\n')
+        print("[TIME]7 days range is from " + last_week[0] + " to " + last_week[1] + '.\n')
+
+        # read file title.
+        fw = open(OUT_FILE_ALL, 'w')
+        fw.write("id\tprice\tbed_tag\tbed_title\tbath_title\tarea\taddr_map\taddr\ttitle\ttime\tdesc\t\n")
+        fw.close()
+        fw = open(OUT_FILE_7D, 'w')
+        fw.write("id\tprice\tbed_tag\tbed_title\tbath_title\tarea\taddr_map\taddr\ttitle\ttime\tdesc\t\n")
+        fw.close()
+        print("[SAVE]File titles written.\n")
 
         # start this crawler
-        add = house_spider(pages, house_list, house_list_7d)
-
-        # output file
-        save_txt(r".\\daily_download\\all_download\\" + OUT_FILE_ALL, house_list)
-        save_txt(r".\\daily_download\\7_days\\" + OUT_FILE_7D, house_list_7d)
-
-        # duplicate
-        dup = add-len(house_list)
+        print("[DOWNLOAD]Crawler starts ... \n")
+        crawler(pages)
+        print("[DOWNLOAD]Crawler finished.\n")
 
         # log summary of data
-        log("DOWNLOAD: \t" + str(add) + " items have been scraped.")
-        if dup is 0:
-            log("DOWNLOAD: \t No duplicate item. \n")
-        elif dup is 1:
-            log("DOWNLOAD: \t" + str(dup) + " is duplicate. \n")
+        print("[DOWNLOAD]Found: \t\t" + str(found_cnt) + "\titems.")
+        print("[DOWNLOAD]Download: \t" + str(download_cnt) + "\titems.")
+        print("[DOWNLOAD]Skip: \t\t" + str(skip_cnt) + "\titems.")
+        if found_cnt - download_cnt == skip_cnt:
+            print("[VERIFY]Download part PASSED.\n")
         else:
-            log("DOWNLOAD: \t" + str(dup) + " items are duplicates. \n")
-        log("for ALL: \t" + str(len(house_list)) + " items have been copied and saved in " + OUT_FILE_ALL + " file.")
-        log("for 7D: \t" + str(len(house_list_7d)) + " items for last week " +
-            "(from " + last_week[0] + ' to ' + last_week[1] + ") have been saved in " + OUT_FILE_ALL + " file. \n")
+            print("[VERIFY]Download part FAILED!!!!! Please check the code!\n")
+
+        # verify all
+        print("[ALL]OUTPUT: " + str(save_cnt_all) + " items have been saved.")
+        print("[ALL]FILE PATH: " + OUT_FILE_ALL)
+        print("[ALL]SIZE: " + str(os.path.getsize(OUT_FILE_ALL)) + ' (' +
+              str(os.path.getsize(OUT_FILE_ALL) >> 10) + 'KB)')
+        if download_cnt == save_cnt_all:
+            print("[ALL][VERIFY]Items number part PASSED.")
+        else:
+            print("[ALL][VERIFY]Items number part FAILED!!!!! Please check the output file!")
+        if os.path.getsize(OUT_FILE_ALL) > 1024:
+            print("[ALL][VERIFY]Size part PASSED.\n")
+        else:
+            print("[ALL][VERIFY]Size part FAILED!!!!! Please check the output file!\n")
+
+        # verify 7d
+        print("[7D]OUTPUT: " + str(save_cnt_7d) + " items have been saved.")
+        print("[7D]FILE PATH: " + OUT_FILE_7D)
+        print("[7D]SIZE: " + str(os.path.getsize(OUT_FILE_7D)) + ' (' +
+              str(os.path.getsize(OUT_FILE_7D) >> 10) + 'KB)\n')
 
     # log summary of time
     end = datetime.datetime.now()
-    log("START time: \t", str(start))
-    log("END time: \t\t", str(end))
-    log("Time used: \t\t", str(end - start) + '\n\n\n\n\n')
+    print("[TIME]START: \t", str(start))
+    print("[TIME]END: \t\t", str(end))
+    print("[TIME]USED: \t", str(end - start) + '\n')
 
 
 main()
